@@ -2,15 +2,15 @@
 Simple JS Date parser
 
 ```typescript
-parseDate(date :string) => string;
+parseDate(date :string) => Date;
 ```
 Accepts a string containing a date in human-readable format.
-Returns the date in ISO format [`Date.toISOString()`]
+Returns JS Date object
 
 
 ```typescript
 import { parseDate } from './index.ts';
-const ISODate = parseDate('20 jan 2007 at 6:38');
+const date = parseDate('20 jan 2007 at 6:38');
 ```
 
 ## Supported formats:
@@ -44,6 +44,7 @@ apr 26, 2006, 04:23:44 am
 mar 26, 2006, 04:23
 mar 26, 2006, 04:23 pm
 mar 03, 2012
+may 22, 2019 at 5:42 pm
 
 2017-02-09
 2017-02-09 08:40
