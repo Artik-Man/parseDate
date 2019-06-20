@@ -27,7 +27,7 @@ const translate = (str: string): string => {
     });
 };
 
-export const parseDate = (str: string): string => {
+export const parseDate = (str: string): Date => {
     str = translate(str.toLowerCase());
 
     // 1.12.1999 23:21
@@ -40,8 +40,7 @@ export const parseDate = (str: string): string => {
     const reg1 = /(\d{1,2}).(\d{1,2}).(\d{4}),?\s?(\d{1,2}:\d{1,2}(:\d{1,2})?)?/;
     if (reg1.test(str)) {
         str = str.replace(reg1, '$3-$2-$1 $4 ');
-        const parsed = new Date(str);
-        return parsed.toISOString();
+        return new Date(str);
     }
 
     // 20 jan 2007 at 6:38
@@ -62,8 +61,7 @@ export const parseDate = (str: string): string => {
     const reg2 = /(\d{1,2})\s([a-z]{3}),?\s(\d{4})\D+(\d{1,2}:\d{1,2}(:\d{1,2})?(\s(am|pm)?))?/;
     if (reg2.test(str)) {
         str = str.replace(reg2, '$1 $2 $3 $4 ');
-        const parsed = new Date(str);
-        return parsed.toISOString();
+        return new Date(str);
     }
 
     // apr 26, 2006, 04:23:44
@@ -71,11 +69,11 @@ export const parseDate = (str: string): string => {
     // mar 26, 2006, 04:23
     // mar 26, 2006, 04:23 pm
     // mar 03, 2012
-    const reg3 = /([a-z]{3})\s(\d{1,2}),?\s(\d{4}),?\s?(\d{1,2}:\d{1,2}:?\d{1,2})?\s?(am|pm)?/;
+    // may 22, 2019 at 5:42 pm
+    const reg3 = /([a-z]{3})\s(\d{1,2}),?\s(\d{4}),?(\s\D+)?\s?(\d{1,2}:\d{1,2}:?\d{1,2})?\s?(am|pm)?/;
     if (reg3.test(str)) {
-        str = str.replace(reg3, '$1 $2 $3 $4 $5 ');
-        const parsed = new Date(str);
-        return parsed.toISOString();
+        str = str.replace(reg3, '$1 $2 $3 $5 $6 ');
+        return new Date(str);
     }
 
     // 2017-02-09
@@ -85,8 +83,7 @@ export const parseDate = (str: string): string => {
     const reg4 = /(\d{4})-(\d{1,2})-(\d{1,2})\s?(\d{1,2}:\d{1,2}:?(\d{1,2})?(\s(am|pm))?)?/;
     if (reg4.test(str)) {
         str = str.replace(reg4, '$1-$2-$3 $4 ');
-        const parsed = new Date(str);
-        return parsed.toISOString();
+        return new Date(str);
     }
 
     // Сегодня, 07:12
@@ -115,9 +112,9 @@ export const parseDate = (str: string): string => {
         if (/yesterday/.test(str)) {
             parsed.setDate(parsed.getDate() - 1);
         }
-        return parsed.toISOString();
+        return parsed;
     }
 
-    console.warn(`[Date parsing error] : ${str}`);
-    return str;
+    throw new Error(`[Date parsing error] : ${str}`);
 };
+
