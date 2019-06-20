@@ -29,69 +29,67 @@ const translate = (str: string): string => {
 
 export const parseDate = (str: string): Date => {
     str = translate(str.toLowerCase());
-
-    // 1.12.1999 23:21
-    // 1.12.1999
-    // 21.12.2011
-    // 01-01-2017
-    // 1.12.1999 23:21
-    // 21.12.2011 23:21
-    // 01-01-2017, 23:21:45
+    // d.MM.YYYY
+    // d.M.YYYY
+    // dd-MM-YYYY
+    // d-M-YYYY
+    // dd.MM.YYYY hh:mm
+    // d.M.YYYY hh:mm
+    // dd-MM-YYYY, hh:mm:ss
     const reg1 = /(\d{1,2}).(\d{1,2}).(\d{4}),?\s?(\d{1,2}:\d{1,2}(:\d{1,2})?)?/;
     if (reg1.test(str)) {
         str = str.replace(reg1, '$3-$2-$1 $4 ');
         return new Date(str);
     }
 
-    // 20 jan 2007 at 6:38
-    // 15 jan 2007 at 6:38:24
-    // 20 jan 2007 at 6:38 am
-    // 20 jan 2007 at 6:38:22 am
-    // 01 march 2017, 23:21
-    // 13 april 2017, 23:21
-    // 2 feb 2017, 23:21
-    // 01 mar 2017
-    // 13 apr 2017
-    // 2 feb 2017
-    // 5 may, 2012
-    // 5 may, 2012 - 21:20
-    // 5 may, 2012 - 01:20 pm
-    // 5 may, 2012 - 21:20:22
-    // 5 may, 2012 - 06:20:22 am
+    // dd MMM YYYY at h:mm
+    // dd MMM YYYY at h:mm:ss
+    // dd MMM YYYY at h:mm a
+    // dd MMM YYYY at h:mm:ss a
+    // dd MMM YYYY, hh:mm
+    // dd-MMMM-YYYY, hh:mm
+    // d MMM YYYY, hh:mm
+    // dd MMM YYYY
+    // d MMM YYYY
+    // d MMM, YYYY
+    // d MMM, YYYY - hh:mm
+    // d MMM, YYYY - hh:mm a
+    // d MMM, YYYY - hh:mm:ss
+    // d MMM, YYYY - hh:mm:ss a
     const reg2 = /(\d{1,2})\s([a-z]{3}),?\s(\d{4})\D+(\d{1,2}:\d{1,2}(:\d{1,2})?(\s(am|pm)?))?/;
     if (reg2.test(str)) {
         str = str.replace(reg2, '$1 $2 $3 $4 ');
         return new Date(str);
     }
 
-    // apr 26, 2006, 04:23:44
-    // apr 26, 2006, 04:23:44 am
-    // mar 26, 2006, 04:23
-    // mar 26, 2006, 04:23 pm
-    // mar 03, 2012
-    // may 22, 2019 at 5:42 pm
+    // MMM dd, YYYY, hh:mm:ss
+    // MMM dd, YYYY, hh:mm:ss a
+    // MMM dd, YYYY, hh:mm
+    // MMM dd, YYYY, hh:mm a
+    // MMM dd, YYYY
+    // MMM dd, YYYY at h:mm a
     const reg3 = /([a-z]{3})\s(\d{1,2}),?\s(\d{4}),?(\s\D+)?\s?(\d{1,2}:\d{1,2}:?\d{1,2})?\s?(am|pm)?/;
     if (reg3.test(str)) {
         str = str.replace(reg3, '$1 $2 $3 $5 $6 ');
         return new Date(str);
     }
 
-    // 2017-02-09
-    // 2017-02-09 08:40
-    // 2017-02-09 08:40 am
-    // 2017-02-09 08:40:22
+    // YYYY-MM-dd
+    // YYYY-MM-dd hh:mm
+    // YYYY-MM-dd hh:mm a
+    // YYYY-MM-dd hh:mm:ss
     const reg4 = /(\d{4})-(\d{1,2})-(\d{1,2})\s?(\d{1,2}:\d{1,2}:?(\d{1,2})?(\s(am|pm))?)?/;
     if (reg4.test(str)) {
         str = str.replace(reg4, '$1-$2-$3 $4 ');
         return new Date(str);
     }
 
-    // Сегодня, 07:12
-    // today at 6:00 am
-    // today at 6:00:12 am
-    // Вчера, 07:12
-    // yesterday at 6:00 am
-    // yesterday at 6:00:12 am
+    // Сегодня, hh:mm
+    // today at h:mm a
+    // today at h:mm:ss a
+    // Вчера, hh:mm
+    // yesterday at h:mm a
+    // yesterday at h:mm:ss a
     const reg5 = /(yester|to)day(,)?\s(at\s)?((\d{1,2}):(\d{1,2}):?(\d{1,2})?(\s(am|pm))?)/;
     if (reg5.test(str)) {
         const parsed = new Date();
