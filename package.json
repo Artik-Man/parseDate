@@ -1,0 +1,25 @@
+{
+  "name": "parsedate",
+  "version": "1.0.0",
+  "description": "Simple JS Date parser",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node ./tests.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artik-Man/parseDate.git"
+  },
+  "keywords": [
+    "date",
+    "parser",
+    "format"
+  ],
+  "author": "mail@artik.me",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Artik-Man/parseDate/issues"
+  },
+  "homepage": "https://github.com/Artik-Man/parseDate#readme"
+}

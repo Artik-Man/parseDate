@@ -1,6 +1,7 @@
-import { parseDate } from './src';
-
-const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: any }[]) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const src_1 = require("./src");
+const runTest = (label, fn, samples) => {
     return async () => {
         console.log('[START]  ' + label);
         let success = 0;
@@ -10,19 +11,18 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
             if (prepared !== sample.out) {
                 failed++;
                 console.warn('-----------------------------------------------------\n[FAILED] '
-                    + label + ': \n\n', sample.in, '\n\n', sample.out, '\n\n', prepared,
-                    '\n-----------------------------------------------------');
-            } else {
+                    + label + ': \n\n', sample.in, '\n\n', sample.out, '\n\n', prepared, '\n-----------------------------------------------------');
+            }
+            else {
                 success++;
             }
         }
-        console.log(`[FINISH] ${label}: success: ${success}, failed: ${failed}`,
-            '\n-----------------------------------------------------');
+        console.log(`[FINISH] ${label}: success: ${success}, failed: ${failed}`, '\n-----------------------------------------------------');
     };
 };
 (() => {
     const testDateParsing = runTest('parseDate', async (str) => {
-        return parseDate(str).toISOString().slice(0, -5);
+        return src_1.parseDate(str).toISOString().slice(0, -5);
     }, [
         {
             in: '1.12.1999 23:21',
@@ -123,9 +123,7 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
             })()
         },
     ]);
-
     (async () => {
         await testDateParsing();
     })();
-
 })();

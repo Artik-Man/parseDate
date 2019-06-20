@@ -115,4 +115,3 @@ export const parseDate = (str: string): Date => {
 
     throw new Error(`[Date parsing error] : ${str}`);
 };
-

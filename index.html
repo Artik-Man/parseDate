@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>parseDate</title>
+</head>
+<body>
+<h1>parseDate</h1>
+<p>Type a date here:</p>
+<input type="text" id="input" value="19.05.2018 17:53">
+<p>Open console to see full result</p>
+<p id="output"></p>
+<script>
+    window.exports = {};
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const parseDate = exports['parseDate'];
+
+        const parse = (str) => {
+            try {
+                return parseDate(str);
+            } catch (e) {
+                console.warn(e);
+                return null;
+            }
+        };
+
+        const start = () => {
+            const date = parse(input.value);
+            if (date) {
+                console.log(input.value + ' => ' + date);
+                output.innerText = date;
+            } else {
+                output.innerText = 'Can not parse this date';
+            }
+        };
+
+        input.addEventListener('keyup', start);
+        start();
+    });
+</script>
+<script src="./src/index.js"></script>
+</body>
+</html>
