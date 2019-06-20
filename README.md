@@ -1,6 +1,8 @@
 # parseDate
 Simple JS Date parser
 
+https://artik-man.github.io/parseDate/
+
 ```typescript
 parseDate(date: string) => Date;
 ```
