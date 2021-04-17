@@ -17,6 +17,7 @@ const date = parseDate('20 jan 2007 at 6:38');
 
 ## Supported formats:
 ```
+YYYYMMdd
 d.MM.YYYY
 d.M.YYYY
 dd-MM-YYYY

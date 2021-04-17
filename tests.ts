@@ -1,23 +1,27 @@
-import { parseDate } from './src';
+import { parseDate } from './index';
 
 const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: any }[]) => {
     return async () => {
-        console.log('[START]  ' + label);
+        console.log(`[START]  ${ label }`);
         let success = 0;
         let failed = 0;
         for (const sample of samples) {
             const prepared = await fn(sample.in);
             if (prepared !== sample.out) {
                 failed++;
-                console.warn('-----------------------------------------------------\n[FAILED] '
-                    + label + ': \n\n', sample.in, '\n\n', sample.out, '\n\n', prepared,
-                    '\n-----------------------------------------------------');
+                console.warn('\x1b[31m', `
+-----------------------------------------------------
+[FAILED]  ${ label }:
+[in]:     ${ sample.in }
+[parsed]: ${ prepared }
+[out]:    ${ sample.out }
+-----------------------------------------------------
+                `, '\x1b[0m');
             } else {
                 success++;
             }
         }
-        console.log(`[FINISH] ${label}: success: ${success}, failed: ${failed}`,
-            '\n-----------------------------------------------------');
+        console.log(`[FINISH] ${ label }: success: ${ success }, failed: ${ failed }`);
     };
 };
 (() => {
@@ -62,11 +66,11 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
         },
         {
             in: '21.12.2011',
-            out: '2011-12-20T20:00:00'
+            out: '2011-12-21T00:00:00'
         },
         {
             in: '01-01-2017',
-            out: '2016-12-31T21:00:00'
+            out: '2017-01-01T00:00:00'
         },
         {
             in: 'Марта 26, 2006, 04:23:44',
