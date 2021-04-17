@@ -1,7 +1,7 @@
 # simple-date-parser
 Simple JS Date parser
 
-https://artik-man.github.io/parseDate/
+https://artik-man.github.io/simple-date-parser/
 
 https://www.npmjs.com/package/simple-date-parser
 
