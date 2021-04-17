@@ -1,14 +1,21 @@
-# parseDate
+# simple-date-parser
 Simple JS Date parser
 
 https://artik-man.github.io/parseDate/
 
+https://www.npmjs.com/package/simple-date-parser
+
+```
+npm install simple-date-parser
+```
+
+Accepts a string containing a date in human-readable format.
+Returns JS Date object
 ```typescript
 parseDate(date: string) => Date;
 ```
-Accepts a string containing a date in human-readable format.
-Returns JS Date object
 
+Using
 
 ```typescript
 import { parseDate } from './index.ts';
