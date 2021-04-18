@@ -16,7 +16,7 @@ const TRANSLATE = new Map<string, Set<string>>([
 ]);
 
 const translate = (str: string): string => {
-    const reg = /([a-zа-яA-ZА-ЯçŞğéüûıź]+)/;
+    const reg = /([a-zа-яA-ZА-ЯçŞğéüûıź]+)/gi;
     return str.replace(reg, word => {
         for (const [key, set] of TRANSLATE) {
             if (set.has(word)) {
@@ -27,34 +27,59 @@ const translate = (str: string): string => {
     });
 };
 
+const months = ['', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+const logger = (log: boolean, input: string, date: Date, parser: string): void => {
+    if (log) {
+        console.group('[simple-date-parser]:logger')
+        console.log('Parser: ' + parser)
+        console.log(input)
+        console.dir(date);
+        console.groupEnd()
+    }
+}
+
+const createDate = (Y: number | string, M?: number | string, D?: number | string, h?: number | string, m?: number | string, s?: number | string, a?: string): Date => {
+
+    const date = new Date(0);
+
+    const year: number = parseInt(Y + '', 10);
+    const month: number = parseInt(M + '', 10) || 1;
+    const day: number = parseInt(D + '', 10) || 1;
+    date.setUTCFullYear(year);
+    date.setUTCMonth(month - 1);
+    date.setUTCDate(day);
+
+    if (h) {
+        let hours = parseInt(h + '', 10) || 0;
+        if (a?.trim() === 'pm') {
+            hours += 12;
+        }
+        date.setUTCHours(hours || 0);
+    }
+    if (m) {
+        const minutes = parseInt(m + '', 10) || 0;
+        date.setUTCMinutes(minutes);
+    }
+    if (s) {
+        const seconds = parseInt(s + '', 10) || 0;
+        date.setUTCSeconds(seconds);
+    }
+
+    return date;
+}
+
 export const isValidDate = (date: Date | any) => date instanceof Date && !isNaN(+date);
 
-export const parseDate = (str: string): Date => {
+export const parseDate = (str: string, log = false): Date => {
     str = translate(str.toLowerCase());
-
     // YYYYMMdd
     {
         const reg = /(20|19)(\d{2})(\d{2})(\d{2})/;
         if (reg.test(str)) {
             const date = new Date(str.replace(reg, '$1$2-$3-$4').trim());
             if (isValidDate(date)) {
-                return date;
-            }
-        }
-    }
-
-    // d.MM.YYYY
-    // d.M.YYYY
-    // dd-MM-YYYY
-    // d-M-YYYY
-    // dd.MM.YYYY hh:mm
-    // d.M.YYYY hh:mm
-    // dd-MM-YYYY, hh:mm:ss
-    {
-        const reg = /(\d{1,2})[.\-\/ \\](\d{1,2})[.\-\/ \\](\d{4}),?\s?(\d{1,2}:\d{1,2}(:\d{1,2})?)?/;
-        if (reg.test(str)) {
-            const date = new Date(str.replace(reg, '$3-$2-$1 $4 ').trim());
-            if (isValidDate(date)) {
+                logger(log, str, date, 'YYYYMMdd');
                 return date;
             }
         }
@@ -75,11 +100,17 @@ export const parseDate = (str: string): Date => {
     // d MMM, YYYY - hh:mm:ss
     // d MMM, YYYY - hh:mm:ss a
     {
-        const reg = /(\d{1,2})[.\-\/ \\]([a-z]{3}),?[.\-\/ \\](\d{4}),?\s?(at|-)?\s?(\d{1,2}:\d{1,2}(:\d{1,2})?(\s(am|pm)?))?/;
+        const reg = /(\d{1,2})[.\-\/ \\]([a-z]{3}),?[.\-\/ \\](\d{4}),?\s?(at|-)?\s?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?(\s(am|pm))?/;
         if (reg.test(str)) {
-            const date = new Date(str.replace(reg, '$1 $2 $3 $5 ').trim());
-            if (isValidDate(date)) {
-                return date;
+            const match = str.match(reg);
+            if (match) {
+                // console.log(match)
+                const [, d, M, y, , h, m, s, a] = match;
+                const date = createDate(y, months.indexOf(M), d, h, m, s, a);
+                if (isValidDate(date)) {
+                    logger(log, str, date, 'dd MMM YYYY at h:mm');
+                    return date;
+                }
             }
         }
     }
@@ -92,30 +123,22 @@ export const parseDate = (str: string): Date => {
     // MMM dd YYYY
     // MMM dd, YYYY at h:mm a
     {
-        const reg = /([a-z]{3})[.\-\/ \\](\d{1,2}),?[.\-\/ \\](\d{4}),?(\s\D+)?\s?(\d{1,2}:\d{1,2}:?\d{1,2})?\s?(am|pm)?/;
+        const reg = /([a-z]{3})[.\-\/ \\](\d{1,2}),?[.\-\/ \\](\d{4}),?(\s\D+)?\s?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?\s?(am|pm)?/;
         if (reg.test(str)) {
-            const date = new Date(str.replace(reg, '$1 $2 $3 $5 $6 ').trim());
-            if (isValidDate(date)) {
-                return date;
+            const match = str.match(reg);
+            if (match) {
+                // console.log(match)
+                const [, M, d, y, , h, m, s, a] = match;
+                const date = createDate(y, months.indexOf(M), d, h, m, s, a);
+
+                if (isValidDate(date)) {
+                    logger(log, str, date, 'MMM dd, YYYY, hh:mm:ss');
+                    return date;
+                }
             }
         }
     }
 
-    // YYYY-MM-dd
-    // YYYY.MM.dd
-    // YYYY/MM/dd
-    // YYYY-MM-dd hh:mm
-    // YYYY-MM-dd hh:mm a
-    // YYYY-MM-dd hh:mm:ss
-    {
-        const reg = /(\d{4})[.\-\/ \\](\d{1,2})[.\-\/ \\](\d{1,2})\s?(\d{1,2}:\d{1,2}:?(\d{1,2})?(\s(am|pm))?)?/;
-        if (reg.test(str)) {
-            const date = new Date(str.replace(reg, '$1-$2-$3 $4 ').trim());
-            if (isValidDate(date)) {
-                return date;
-            }
-        }
-    }
 
     // Сегодня
     // Yesterday
@@ -126,70 +149,82 @@ export const parseDate = (str: string): Date => {
     // yesterday at h:mm a
     // yesterday at h:mm:ss a
     {
-        const reg = /(yester|to)day(,)?\s?(at\s)?((\d{1,2}):(\d{1,2}):?(\d{1,2})?(\s(am|pm))?)?/;
+        const reg = /(yesterday|today)(,)?\s?(at\s)?((\d{1,2}):(\d{1,2}):?(\d{1,2})?(\s(am|pm))?)?/;
         if (reg.test(str)) {
-            const date = new Date();
-            const [h, m, s, a] = str.replace(reg, '$5/$6/$7/$8').split('/');
-            if (h.length) {
-                let hours = +h;
-                if (a.indexOf('pm') !== -1) {
-                    hours += 12;
+            const match = str.match(reg);
+            if (match) {
+                // console.log(match)
+                const date = new Date();
+                const [, kw, , , , h, m, s, a] = match;
+                if (kw === 'yesterday') {
+                    date.setUTCDate(date.getUTCDate() - 1);
                 }
-                date.setHours(hours);
-            }
-            if (m.length) {
-                date.setMinutes(+m);
-            }
-            if (s.length) {
-                date.setSeconds(+s);
-            }
-            if (/yesterday/.test(str)) {
-                date.setDate(date.getDate() - 1);
-            }
-            if (isValidDate(date)) {
+                if (h) {
+                    let hours = parseInt(h, 10) || 0;
+                    if (a === ' pm') {
+                        hours += 12;
+                    }
+                    date.setUTCHours(hours || 0, +m || 0, +s || 0, 0);
+                }
+
+                logger(log, str, date, 'yesterday at h:mm:ss a');
                 return date;
+
             }
         }
     }
 
-    // 1
-    // 12
-    // 12.
-    // 12-
-    // 12/
-    // 12.0
-    // 12.4
-    // 12.04
-    // 12.04.20
-    // 12.04.2021
+    // d
+    // dd
+    // dd.
+    // dd-
+    // dd/
+    // dd.M
+    // dd.MM
+    // dd.MM.YY
+    // dd.MM.YYYY
+    // dd.MM.YYYY, hh:mm:ss
     {
-        const reg = /(\d{1,2})?([.\-\/ \\](\d{1,2}))?([.\-\/ \\](\d{1,4}))?/;
+        const reg = /(\d{1,2})([.\-\/ \\](\d{1,2}))?([.\-\/ \\](\d{1,4}))?,?\s?(\d{1,2})?([.:\-\/ \\](\d{1,2}))?([.:\-\/ \\](\d{1,2}))?/;
         if (reg.test(str)) {
-            const date = new Date();
-            const [d, m, y] = str.replace(reg, '$1/$3/$5').split('/').map(x => parseInt(x, 10));
-            if (d) {
-                date.setDate(d);
-            }
-            if (m) {
-                date.setMonth(m - 1);
-            }
-            if (y) {
-                let year = y;
-                if (y < 1000) {
-                    year = 1000 + y;
+            const match = str.match(reg);
+            if (match) {
+                const [, D, , M, , Y, h, , m, , s] = match;
+                // console.log(match)
+                const date = createDate(Y, M, D, h, m, s);
+
+                if (isValidDate(date)) {
+                    logger(log, str, date, 'dd.MM.YYYY');
+                    return date;
                 }
-                if (y < 100) {
-                    year = 1900 + y;
-                }
-                if (y < 25) {
-                    year = 2000 + y;
-                }
-                date.setFullYear(year);
             }
-            return date;
         }
 
+    }
+
+    // YYYY-MM-dd
+    // YYYY.MM.dd
+    // YYYY/MM/dd
+    // YYYY-MM-dd hh:mm
+    // YYYY-MM-dd hh:mm a
+    // YYYY-MM-dd hh:mm:ss
+    {
+        const reg = /(\d{4})[.\-\/ \\]?(\d{1,2})?[.\-\/ \\]?(\d{1,2})?\s?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?(\s(am|pm))?/;
+        if (reg.test(str)) {
+            const match = str.match(reg);
+            if (match) {
+                // console.log(match)
+                const [, y, M, d, h, m, s, , a] = match;
+                const date = createDate(y, M, d, h, m, s, a);
+
+                if (isValidDate(date)) {
+                    logger(log, str, date, 'YYYY-MM-dd hh:mm:ss');
+                    return date;
+                }
+            }
+        }
     }
 
     throw new Error(`[Date parsing error] : ${ str }`);
 };
+
