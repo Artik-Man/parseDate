@@ -1,6 +1,6 @@
 {
   "name": "simple-date-parser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Simple JS Date parser",
   "main": "src/index.js",
   "scripts": {
