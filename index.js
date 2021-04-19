@@ -15,11 +15,12 @@ const TRANSLATE = new Map([
     ['nov', new Set(['denovembrode', 'november', 'kasım', 'noviembre', 'novembre', 'ноября', 'ноябрь', 'ноя', 'nov', 'lis'])],
     ['dec', new Set(['dedezembrode', 'december', 'aralık', 'diciembre', 'décembre', 'декабря', 'декабрь', 'дек', 'dic', 'déc', 'gru'])],
     ['yesterday', new Set(['yesterday', 'вчера', 'wczoraj', 'hier'])],
-    ['today', new Set(['today', 'сегодня', 'aujourd\'hui'])]
+    ['today', new Set(['today', 'сегодня', 'aujourd\'hui'])],
+    ['at', new Set(['at', 'в'])]
 ]);
 const translate = (str) => {
-    const reg = /([a-zа-яA-ZА-ЯçŞğéüûıź]+)/gi;
-    return str.replace(reg, word => {
+    const reg = /([a-zа-яёçŞğéüûıź]+)/gi;
+    return str.toLowerCase().replace(reg, word => {
         for (const [key, set] of TRANSLATE) {
             if (set.has(word)) {
                 return key;
@@ -38,50 +39,48 @@ const logger = (log, input, date, parser) => {
         console.groupEnd();
     }
 };
+const numberFormat = (num, count = 2) => {
+    return ('0' + num).slice(-count);
+};
 const createDate = (Y, M, D, h, m, s, a) => {
-    const date = new Date(0);
-    const year = parseInt(Y + '', 10);
+    let year = parseInt(Y + '', 10);
+    if (year < 25) {
+        year = 2000 + year;
+    }
+    else if (year < 100) {
+        year = 1900 + year;
+    }
+    else if (year < 1000) {
+        year = 1000 + year;
+    }
     const month = parseInt(M + '', 10) || 1;
     const day = parseInt(D + '', 10) || 1;
-    date.setUTCFullYear(year);
-    date.setUTCMonth(month - 1);
-    date.setUTCDate(day);
+    let hours = 0, minutes = 0, seconds = 0;
     if (h) {
-        let hours = parseInt(h + '', 10) || 0;
+        hours = parseInt(h + '', 10) || 0;
         if (a?.trim() === 'pm') {
             hours += 12;
         }
-        date.setUTCHours(hours || 0);
     }
     if (m) {
-        const minutes = parseInt(m + '', 10) || 0;
-        date.setUTCMinutes(minutes);
+        minutes = parseInt(m + '', 10) || 0;
     }
     if (s) {
-        const seconds = parseInt(s + '', 10) || 0;
-        date.setUTCSeconds(seconds);
+        seconds = parseInt(s + '', 10) || 0;
     }
-    return date;
+    const iso = `${year}-${numberFormat(month)}-${numberFormat(day)}T${numberFormat(hours)}:${numberFormat(minutes)}:${numberFormat(seconds)}.000Z`;
+    return new Date(iso);
 };
 const isValidDate = (date) => date instanceof Date && !isNaN(+date);
 exports.isValidDate = isValidDate;
 const parseDate = (str, log = false) => {
-    str = translate(str.toLowerCase());
+    str = translate(str);
     {
-        const reg = /(20|19)(\d{2})(\d{2})(\d{2})/;
-        if (reg.test(str)) {
-            const date = new Date(str.replace(reg, '$1$2-$3-$4').trim());
-            if (exports.isValidDate(date)) {
-                logger(log, str, date, 'YYYYMMdd');
-                return date;
-            }
-        }
-    }
-    {
-        const reg = /(\d{1,2})[.\-\/ \\]([a-z]{3}),?[.\-\/ \\](\d{4}),?\s?(at|-)?\s?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?(\s(am|pm))?/;
+        const reg = /(\d{1,2})[.\-\/ \\]([a-z]{3}),?[.\-\/ \\](\d{2,4}),?\s?(at|-)?\s?(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?(\s(am|pm))?/;
         if (reg.test(str)) {
             const match = str.match(reg);
             if (match) {
+                console.log(match);
                 const [, d, M, y, , h, m, s, a] = match;
                 const date = createDate(y, months.indexOf(M), d, h, m, s, a);
                 if (exports.isValidDate(date)) {
@@ -110,20 +109,17 @@ const parseDate = (str, log = false) => {
         if (reg.test(str)) {
             const match = str.match(reg);
             if (match) {
-                const date = new Date();
+                const d = new Date();
                 const [, kw, , , , h, m, s, a] = match;
                 if (kw === 'yesterday') {
-                    date.setUTCDate(date.getUTCDate() - 1);
+                    d.setDate(d.getDate() - 1);
                 }
-                if (h) {
-                    let hours = parseInt(h, 10) || 0;
-                    if (a === ' pm') {
-                        hours += 12;
-                    }
-                    date.setUTCHours(hours || 0, +m || 0, +s || 0, 0);
+                let Y = d.getFullYear(), M = d.getMonth() + 1, D = d.getDate();
+                const date = createDate(Y, M, D, h, m, s, a);
+                if (exports.isValidDate(date)) {
+                    logger(log, str, date, 'yesterday at h:mm:ss a');
+                    return date;
                 }
-                logger(log, str, date, 'yesterday at h:mm:ss a');
-                return date;
             }
         }
     }
@@ -135,7 +131,7 @@ const parseDate = (str, log = false) => {
                 const [, D, , M, , Y, h, , m, , s] = match;
                 const date = createDate(Y, M, D, h, m, s);
                 if (exports.isValidDate(date)) {
-                    logger(log, str, date, 'dd.MM.YYYY');
+                    logger(log, str, date, 'dd.MM.YYYY, hh:mm:ss');
                     return date;
                 }
             }
