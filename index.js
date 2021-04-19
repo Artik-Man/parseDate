@@ -58,7 +58,7 @@ const createDate = (Y, M, D, h, m, s, a) => {
     let hours = 0, minutes = 0, seconds = 0;
     if (h) {
         hours = parseInt(h + '', 10) || 0;
-        if (a?.trim() === 'pm') {
+        if ((a === null || a === void 0 ? void 0 : a.trim()) === 'pm') {
             hours += 12;
         }
     }
@@ -129,7 +129,8 @@ const parseDate = (str, log = false) => {
             const match = str.match(reg);
             if (match) {
                 const [, D, , M, , Y, h, , m, , s] = match;
-                const date = createDate(Y, M, D, h, m, s);
+                const current = new Date();
+                const date = createDate(Y || current.getFullYear(), M || current.getMonth() + 1, D || current.getDate(), h, m, s);
                 if (exports.isValidDate(date)) {
                     logger(log, str, date, 'dd.MM.YYYY, hh:mm:ss');
                     return date;

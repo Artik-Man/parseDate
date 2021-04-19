@@ -189,7 +189,8 @@ export const parseDate = (str: string, log = false): Date => {
             if (match) {
                 const [, D, , M, , Y, h, , m, , s] = match;
                 // console.log(match)
-                const date = createDate(Y, M, D, h, m, s);
+                const current = new Date();
+                const date = createDate(Y || current.getFullYear(), M || current.getMonth() + 1, D || current.getDate(), h, m, s);
 
                 if (isValidDate(date)) {
                     logger(log, str, date, 'dd.MM.YYYY, hh:mm:ss');
