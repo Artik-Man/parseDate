@@ -1,0 +1,10 @@
+node_modules/
+.gitignore
+index.ts
+index.html
+scripts.js
+styles.css
+tests.ts
+tests.js
+tsconfig.json
+tsconfig.tsbuildinfo

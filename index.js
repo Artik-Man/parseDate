@@ -30,7 +30,7 @@ const translate = (str) => {
 };
 const months = ['', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const logger = (log, input, date, parser) => {
-    if (typeof log === 'boolean') {
+    if (log === true) {
         console.group('[simple-date-parser]:logger');
         console.log('Parser: ' + parser);
         console.log(input);
