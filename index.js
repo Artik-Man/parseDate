@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseDate = exports.isValidDate = void 0;
 const TRANSLATE = new Map([
     ['jan', new Set(['dejaneirode', 'january', 'ocak', 'enero', 'janvier', 'января', 'январь', 'янв', 'ene', 'jan', 'sty'])],
     ['feb', new Set(['defevereirode', 'february', 'şubat', 'febrero', 'février', 'февраля', 'февраль', 'фев', 'feb', 'fév', 'lut'])],
@@ -82,9 +79,8 @@ const createDate = (Y, M, D, h, m, s, a) => {
     const iso = `${year}-${numberFormat(month)}-${numberFormat(day)}T${numberFormat(hours)}:${numberFormat(minutes)}:${numberFormat(seconds)}.000Z`;
     return new Date(iso);
 };
-const isValidDate = (date) => date instanceof Date && !isNaN(+date);
-exports.isValidDate = isValidDate;
-const parseDate = (str, log = false) => {
+export const isValidDate = (date) => date instanceof Date && !isNaN(+date);
+export const parseDate = (str, log = false) => {
     str = translate(str);
     {
         const reg = /((19|20)(\d{2}))(\d{2})(\d{2})/;
@@ -93,7 +89,7 @@ const parseDate = (str, log = false) => {
             if (match) {
                 const [, Y, , , M, d] = match;
                 const date = createDate(Y, M, d);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'YYYYMMdd');
                     return date;
                 }
@@ -107,7 +103,7 @@ const parseDate = (str, log = false) => {
             if (match) {
                 const [, d, M, y, , h, m, s, a] = match;
                 const date = createDate(y, months.indexOf(M), d, h, m, s, a);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'dd MMM YYYY at h:mm');
                     return date;
                 }
@@ -121,7 +117,7 @@ const parseDate = (str, log = false) => {
             if (match) {
                 const [, M, d, y, , h, m, s, a] = match;
                 const date = createDate(y, months.indexOf(M), d, h, m, s, a);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'MMM dd, YYYY, hh:mm:ss');
                     return date;
                 }
@@ -143,7 +139,7 @@ const parseDate = (str, log = false) => {
                 }
                 let Y = d.getFullYear(), M = d.getMonth() + 1, D = d.getDate();
                 const date = createDate(Y, M, D, h, m, s, a);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'yesterday at h:mm:ss a');
                     return date;
                 }
@@ -157,7 +153,7 @@ const parseDate = (str, log = false) => {
             if (match) {
                 const [, Y, , M, , d, h, m, s, , a] = match;
                 const date = createDate(Y, M, d, h, m, s, a);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'YYYY-MM-dd hh:mm:ss');
                     return date;
                 }
@@ -172,7 +168,7 @@ const parseDate = (str, log = false) => {
                 const [, D, , M, , Y, , h, , m, , s, a] = match;
                 const current = new Date();
                 const date = createDate(Y || current.getFullYear(), M || current.getMonth() + 1, D || current.getDate(), h, m, s, a);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'dd.MM.YYYY, hh:mm:ss');
                     return date;
                 }
@@ -186,7 +182,7 @@ const parseDate = (str, log = false) => {
             if (match) {
                 const [, Y] = match;
                 const date = createDate(Y);
-                if (exports.isValidDate(date)) {
+                if (isValidDate(date)) {
                     logger(log, str, date, 'YYYY');
                     return date;
                 }
@@ -195,4 +191,3 @@ const parseDate = (str, log = false) => {
     }
     throw new Error(`[Date parsing error] : ${str}`);
 };
-exports.parseDate = parseDate;

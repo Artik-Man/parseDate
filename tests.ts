@@ -1,8 +1,8 @@
-import { parseDate } from './index';
+import { parseDate } from './index.js';
 
 const runTest = (label: string, fn: (arg: any, log: (l: string) => void) => any, samples: { in: any, out: any }[]) => {
     return () => {
-        console.log(`[START]  ${ label }`);
+        console.warn(`[START]  ${ label }`);
         let success = 0;
         let failed = 0;
         for (const sample of samples) {
@@ -23,9 +23,10 @@ const runTest = (label: string, fn: (arg: any, log: (l: string) => void) => any,
                 success++;
             }
         }
-        console.log(`[FINISH] ${ label }: success: ${ success }, failed: ${ failed }`);
+        console.warn(`[FINISH] ${ label }: success: ${ success }, failed: ${ failed }`);
     };
 };
+
 (() => {
     const testDateParsing = runTest('parseDate', (str, log?: (l: string) => void) => {
         try {
@@ -33,7 +34,7 @@ const runTest = (label: string, fn: (arg: any, log: (l: string) => void) => any,
                 log?.(`${ parser } / ${ input }`);
             }).toISOString();
         } catch (e) {
-            console.warn(e)
+            console.warn('Cannot parse the date', str);
         }
     }, [
         {
