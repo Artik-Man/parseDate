@@ -1,3 +1,4 @@
+.idea/
 node_modules/
 .gitignore
 index.ts
@@ -6,5 +7,6 @@ scripts.js
 styles.css
 tests.ts
 tests.js
+tests.d.ts
 tsconfig.json
 tsconfig.tsbuildinfo

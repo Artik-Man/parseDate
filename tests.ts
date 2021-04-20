@@ -176,5 +176,3 @@ const runTest = (label: string, fn: (arg: any, log: (l: string) => void) => any,
     })();
 
 })();
-
-

@@ -1,4 +1,5 @@
-/.idea
-node_modules
-/tests.js
+.idea/
+node_modules/
+tests.js
+tests.d.js
 tsconfig.tsbuildinfo
