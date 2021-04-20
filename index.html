@@ -84,10 +84,11 @@
         <h2>Supported date formats</h2>
         <ul>
             <li>dd MMM YYYY hh:mm:ss a</li>
-            <li>MM dd YYYY hh:mm:ss a</li>
-            <li>dd MM YYYY hh:mm:ss</li>
+            <li>MMM dd YYYY hh:mm:ss a</li>
+            <li>dd MM YYYY hh:mm:ss a</li>
             <li>YYYY MM dd hh:mm:ss a</li>
             <li>YYYYMMdd</li>
+            <li>YYYY</li>
             <li>[today|yesterday|...] hh:mm:ss a</li>
             <li>...</li>
         </ul>
@@ -173,8 +174,9 @@
             write();
         }
 
-        run();
-
+        setTimeout(() => {
+            run();
+        }, 5000);
 
     });
 </script>

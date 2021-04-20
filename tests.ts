@@ -1,17 +1,19 @@
 import { parseDate } from './index';
 
-const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: any }[]) => {
+const runTest = (label: string, fn: (arg: any, log: (l: string) => void) => any, samples: { in: any, out: any }[]) => {
     return () => {
         console.log(`[START]  ${ label }`);
         let success = 0;
         let failed = 0;
         for (const sample of samples) {
-            const prepared = fn(sample.in);
+            let log = '';
+            const prepared = fn(sample.in, l => log = l);
             if (prepared !== sample.out) {
                 failed++;
                 console.warn('\x1b[31m', `
 -----------------------------------------------------
 [FAILED]  ${ label }:
+[Parser]  ${ log }
 [in]:     ${ sample.in }
 [parsed]: ${ prepared }
 [out]:    ${ sample.out }
@@ -25,9 +27,11 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
     };
 };
 (() => {
-    const testDateParsing = runTest('parseDate', (str) => {
+    const testDateParsing = runTest('parseDate', (str, log?: (l: string) => void) => {
         try {
-            return parseDate(str).toISOString();
+            return parseDate(str, (input, date, parser) => {
+                log?.(`${ parser } / ${ input }`);
+            }).toISOString();
         } catch (e) {
             console.warn(e)
         }
@@ -35,6 +39,10 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
         {
             in: '1.12.1999 23:21',
             out: '1999-12-01T23:21:00.000Z'
+        },
+        {
+            in: '5.8.12 5:11 pm',
+            out: '2012-08-05T17:11:00.000Z'
         },
         {
             in: '21.12.2011 23:21',
@@ -47,6 +55,10 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
         {
             in: 'Birthday: 01 March 2017',
             out: '2017-03-01T00:00:00.000Z'
+        },
+        {
+            in: '20130504',
+            out: '2013-05-04T00:00:00.000Z'
         },
         {
             in: '13 april 2017, 23:21',
@@ -134,6 +146,15 @@ const runTest = (label: string, fn: (arg: any) => any, samples: { in: any, out: 
             out: (() => {
                 const date = new Date();
                 date.setDate(date.getDate() - 1);
+                date.setHours(0, 0 - date.getTimezoneOffset(), 0, 0);
+                return date.toISOString();
+            })()
+        },
+        {
+            in: 'завтра',
+            out: (() => {
+                const date = new Date();
+                date.setDate(date.getDate() + 1);
                 date.setHours(0, 0 - date.getTimezoneOffset(), 0, 0);
                 return date.toISOString();
             })()
