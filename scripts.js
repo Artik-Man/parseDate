@@ -25,11 +25,14 @@ input.addEventListener('input', start);
 start();
 
 let focus = false;
+let runTimeout;
 
 input.addEventListener('focus', () => focus = true);
 input.addEventListener('blur', () => {
     focus = false;
-    setTimeout(() => {
+
+    clearTimeout(runTimeout);
+    runTimeout = setTimeout(() => {
         run();
     }, 10000)
 });
@@ -60,7 +63,9 @@ const run = () => {
                     if (index >= tests.length) {
                         index = 0;
                     }
-                    setTimeout(() => {
+
+                    clearTimeout(runTimeout);
+                    runTimeout = setTimeout(() => {
                         run();
                     }, 3000)
                 }
@@ -70,6 +75,6 @@ const run = () => {
     write();
 }
 
-setTimeout(() => {
+runTimeout = setTimeout(() => {
     run();
 }, 5000);
